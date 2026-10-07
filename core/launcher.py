@@ -10,6 +10,7 @@ import ctypes
 from ctypes import wintypes
 import subprocess
 import webbrowser
+import urllib.parse
 from typing import Tuple, Optional
 
 import win32gui
@@ -120,16 +121,103 @@ def _delayed_restore_clipboard(old_text: Optional[str], delay_sec: float = 0.8):
             pass
     threading.Thread(target=_worker, daemon=True).start()
 
+def _find_existing_tab_for_path(target_path: str) -> Optional[Tuple[int, str]]:
+    """
+    檢查目前所有已開啟的檔案總管分頁，若已有相同路徑的分頁，回傳 (hwnd, tab_name)；否則回傳 None。
+    嚴格過濾幽靈視窗與無效 HWND。
+    """
+    target_norm = os.path.normpath(target_path).lower()
+    try:
+        import win32com.client
+        shell_app = win32com.client.Dispatch("Shell.Application")
+        for w in shell_app.Windows():
+            try:
+                hwnd = getattr(w, "HWND", None)
+                if not hwnd or not win32gui.IsWindow(hwnd) or not win32gui.IsWindowVisible(hwnd):
+                    continue
+
+                url = getattr(w, "LocationURL", "")
+                if url.startswith("file:///"):
+                    raw_path = url[8:]
+                    decoded_path = urllib.parse.unquote(raw_path).replace("/", "\\")
+                    if os.path.normpath(decoded_path).lower() == target_norm:
+                        tab_name = getattr(w, "LocationName", "")
+                        return hwnd, tab_name
+            except Exception:
+                continue
+    except Exception:
+        pass
+    return None
+
+def _switch_to_tab(hwnd: int, tab_name: str, folder_name: str) -> bool:
+    """
+    將檔案總管視窗帶到前景，並切換至名為 tab_name (或 folder_name) 的分頁。
+    """
+    # 1. 喚醒檔案總管視窗至前景
+    _bring_window_to_foreground(hwnd)
+    time.sleep(0.08)
+
+    # 2. 檢查目前頂層視窗標題，若已經是該分頁，直接完成
+    current_title = win32gui.GetWindowText(hwnd)
+    name_to_match = tab_name or folder_name
+    if name_to_match and name_to_match.lower() in current_title.lower():
+        return True
+
+    # 3. 透過 PowerShell + UI Automation 切換 TabItem
+    clean_name = name_to_match.replace("'", "''")
+    clean_folder = folder_name.replace("'", "''")
+    ps_script = f"""
+Add-Type -AssemblyName UIAutomationClient
+Add-Type -AssemblyName UIAutomationTypes
+try {{
+    $el = [System.Windows.Automation.AutomationElement]::FromHandle([IntPtr]{hwnd})
+    if ($el) {{
+        $cond = New-Object System.Windows.Automation.PropertyCondition(
+            [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
+            [System.Windows.Automation.ControlType]::TabItem
+        )
+        $tabs = $el.FindAll([System.Windows.Automation.TreeScope]::Descendants, $cond)
+        foreach ($t in $tabs) {{
+            $n = $t.Current.Name
+            if ($n -eq '{clean_name}' -or $n -eq '{clean_folder}') {{
+                $pattern = $t.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern)
+                $pattern.Select()
+                break
+            }}
+        }}
+    }}
+}} catch {{}}
+"""
+    try:
+        subprocess.run(
+            ["powershell", "-NoProfile", "-NonInteractive", "-Command", ps_script],
+            creationflags=subprocess.CREATE_NO_WINDOW,
+            timeout=1.5
+        )
+        return True
+    except Exception:
+        return False
+
 def open_folder(folder_path: str, prefer_tab: bool = True) -> Tuple[bool, str]:
     """
     開啟資料夾路徑：
-    若啟用 prefer_tab 且已有開啟的檔案總管視窗，則在現有視窗開啟新分頁並導航至目標路徑；
-    否則以原生獨立視窗方式開啟。
+    1. 若已有相同路徑的分頁，直接將視窗帶至前景並切換至該分頁 (不開新分頁)；
+    2. 若無相同分頁但啟用 prefer_tab，則在現有檔案總管開啟新分頁；
+    3. 否則以原生獨立視窗方式開啟。
     """
     target = os.path.normpath(folder_path.strip().strip('"').strip("'"))
     if not os.path.exists(target) or not os.path.isdir(target):
         return False, f"找不到目標資料夾: {target}"
 
+    # 第一優先：檢查是否已有相同路徑的分頁 (Tab Reuse)
+    folder_name = os.path.basename(target) or target
+    existing_tab = _find_existing_tab_for_path(target)
+    if existing_tab:
+        hwnd, tab_name = existing_tab
+        _switch_to_tab(hwnd, tab_name, folder_name)
+        return True, f"已切換至現有分頁: {target}"
+
+    # 第二步：無重複分頁，若啟用 prefer_tab 且有開啟的檔案總管視窗，開新分頁
     if prefer_tab:
         hwnd = _find_explorer_hwnd()
         if hwnd:
