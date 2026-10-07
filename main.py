@@ -24,7 +24,7 @@ import updater
 # 讀取版本號與目錄
 BASE_DIR = get_app_dir()
 VERSION_FILE = os.path.join(BASE_DIR, "version.txt")
-VERSION = "v1.20261007.32"
+VERSION = "v1.20261007.1"
 if os.path.exists(VERSION_FILE):
     try:
         with open(VERSION_FILE, "r", encoding="utf-8-sig") as f:
