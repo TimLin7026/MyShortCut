@@ -19,8 +19,10 @@ import win32clipboard
 
 from .shortcut_manager import ShortcutItem
 
+VK_MENU = 0x12
 VK_CONTROL = 0x11
 VK_T = 0x54
+VK_D = 0x44
 VK_L = 0x4C
 VK_V = 0x56
 VK_RETURN = 0x0D
@@ -67,20 +69,20 @@ def _bring_window_to_foreground(hwnd: int):
             pass
 
 def _press_key_combo(mod_vk: int, key_vk: int):
-    """模擬發送組合鍵 (例如 Ctrl + T, Ctrl + L, Ctrl + V)"""
+    """模擬發送組合鍵 (例如 Ctrl + T, Alt + D, Ctrl + V)"""
     ctypes.windll.user32.keybd_event(mod_vk, 0, 0, 0)
     ctypes.windll.user32.keybd_event(key_vk, 0, 0, 0)
-    time.sleep(0.04)
+    time.sleep(0.05)
     ctypes.windll.user32.keybd_event(key_vk, 0, KEYEVENTF_KEYUP, 0)
     ctypes.windll.user32.keybd_event(mod_vk, 0, KEYEVENTF_KEYUP, 0)
-    time.sleep(0.04)
+    time.sleep(0.05)
 
 def _press_single_key(key_vk: int):
     """模擬發送單一按鍵 (例如 Enter)"""
     ctypes.windll.user32.keybd_event(key_vk, 0, 0, 0)
-    time.sleep(0.03)
+    time.sleep(0.04)
     ctypes.windll.user32.keybd_event(key_vk, 0, KEYEVENTF_KEYUP, 0)
-    time.sleep(0.03)
+    time.sleep(0.04)
 
 def _set_clipboard_with_backup(text: str) -> Optional[str]:
     """將文字寫入剪貼簿並傳回原本的剪貼簿內容"""
@@ -103,7 +105,7 @@ def _set_clipboard_with_backup(text: str) -> Optional[str]:
 
     return old_text
 
-def _delayed_restore_clipboard(old_text: Optional[str], delay_sec: float = 0.5):
+def _delayed_restore_clipboard(old_text: Optional[str], delay_sec: float = 0.8):
     """延遲還原使用者原本的剪貼簿內容 (非同步執行，不阻礙主線程)"""
     if old_text is None:
         return
@@ -121,7 +123,7 @@ def _delayed_restore_clipboard(old_text: Optional[str], delay_sec: float = 0.5):
 def open_folder(folder_path: str, prefer_tab: bool = True) -> Tuple[bool, str]:
     """
     開啟資料夾路徑：
-    若啟用 prefer_tab 且已有開啟的檔案總管視窗，則在現有視窗開啟新分頁 (Ctrl+T)；
+    若啟用 prefer_tab 且已有開啟的檔案總管視窗，則在現有視窗開啟新分頁並導航至目標路徑；
     否則以原生獨立視窗方式開啟。
     """
     target = os.path.normpath(folder_path.strip().strip('"').strip("'"))
@@ -132,30 +134,62 @@ def open_folder(folder_path: str, prefer_tab: bool = True) -> Tuple[bool, str]:
         hwnd = _find_explorer_hwnd()
         if hwnd:
             try:
+                # 取得目前已有的 COM ShellWindows 數量
+                shell_app = None
+                before_count = 0
+                try:
+                    import win32com.client
+                    shell_app = win32com.client.Dispatch("Shell.Application")
+                    before_count = len(list(shell_app.Windows()))
+                except Exception:
+                    shell_app = None
+
                 # 1. 喚醒檔案總管至前景
                 _bring_window_to_foreground(hwnd)
-                time.sleep(0.12)
+                time.sleep(0.15)
 
                 # 2. 開新分頁 Ctrl + T
                 _press_key_combo(VK_CONTROL, VK_T)
+
+                # 3. 軌道 A：優先嘗試 COM Navigate2 原生導向 (若能捕獲新分頁)
+                navigated_by_com = False
+                if shell_app is not None:
+                    for _ in range(5):
+                        time.sleep(0.08)
+                        try:
+                            current_wins = list(shell_app.Windows())
+                            if len(current_wins) > before_count:
+                                new_win = current_wins[-1]
+                                new_win.Navigate2(target)
+                                navigated_by_com = True
+                                break
+                        except Exception:
+                            pass
+
+                if navigated_by_com:
+                    return True, f"已在現有檔案總管開啟新分頁 (COM): {target}"
+
+                # 4. 軌道 B：強化版鍵盤時序備援 (若 COM 未回報新分頁)
+                # 等待分頁與網址列 UI 完整渲染 (共約 0.35 秒)
+                time.sleep(0.25)
+
+                # 聚焦網址列：使用 Alt + D (比 Ctrl+L 更具強制性且自動全選網址)
+                _press_key_combo(VK_MENU, VK_D)
                 time.sleep(0.15)
 
-                # 3. 聚焦網址列 Ctrl + L
-                _press_key_combo(VK_CONTROL, VK_L)
-                time.sleep(0.1)
-
-                # 4. 備份原剪貼簿並放入目標路徑
+                # 備份原剪貼簿並放入目標路徑
                 old_clipboard = _set_clipboard_with_backup(target)
 
-                # 5. 貼上路徑 Ctrl + V
+                # 貼上路徑 Ctrl + V
                 _press_key_combo(VK_CONTROL, VK_V)
-                time.sleep(0.05)
+                # 等待 0.15 秒確保文字已完整填入網址列控制項
+                time.sleep(0.15)
 
-                # 6. 送出 Enter 導航
+                # 送出 Enter 導航
                 _press_single_key(VK_RETURN)
 
-                # 7. 延遲還原剪貼簿
-                _delayed_restore_clipboard(old_clipboard, delay_sec=0.5)
+                # 延遲還原剪貼簿 (0.8 秒防護期)
+                _delayed_restore_clipboard(old_clipboard, delay_sec=0.8)
 
                 return True, f"已在現有檔案總管開啟新分頁: {target}"
             except Exception:

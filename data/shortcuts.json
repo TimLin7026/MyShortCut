@@ -1,10 +1,11 @@
 {
   "version": "1.2",
-  "updated_at": "2026-10-07 09:12:57",
+  "updated_at": "2026-10-07 09:51:39",
   "config": {
     "sort_by_frequency": true,
     "window_height_mode": "half",
-    "auto_hide_on_lose_focus": true
+    "auto_hide_on_lose_focus": true,
+    "open_folder_in_tab": true
   },
   "shortcuts": [
     {
@@ -21,6 +22,19 @@
       "last_launched_at": "2026-10-07 09:12:43"
     },
     {
+      "id": "1094f4c2",
+      "name": "月會",
+      "target_path": "D:\\Document\\DSC\\月會",
+      "arguments": "",
+      "working_dir": "D:\\Document\\DSC\\月會",
+      "category": "資料夾",
+      "enabled": true,
+      "pinned": true,
+      "order": 1,
+      "launch_count": 7,
+      "last_launched_at": "2026-10-07 09:51:39"
+    },
+    {
       "id": "e3bf2525",
       "name": "工具開發區",
       "target_path": "D:\\工具開發區",
@@ -32,19 +46,6 @@
       "order": 14,
       "launch_count": 6,
       "last_launched_at": "2026-10-06 11:09:45"
-    },
-    {
-      "id": "1094f4c2",
-      "name": "月會",
-      "target_path": "D:\\Document\\DSC\\月會",
-      "arguments": "",
-      "working_dir": "D:\\Document\\DSC\\月會",
-      "category": "資料夾",
-      "enabled": true,
-      "pinned": true,
-      "order": 1,
-      "launch_count": 1,
-      "last_launched_at": "2026-09-21 13:40:30"
     },
     {
       "id": "4a059f48",
