@@ -132,6 +132,7 @@ class ShortcutManager:
         self.sort_by_frequency: bool = False
         self.window_height_mode: str = "half"
         self.auto_hide_on_lose_focus: bool = True
+        self.open_folder_in_tab: bool = True
         self.load()
 
     def load(self):
@@ -147,6 +148,7 @@ class ShortcutManager:
                 self.sort_by_frequency = config.get("sort_by_frequency", False)
                 self.window_height_mode = config.get("window_height_mode", "half")
                 self.auto_hide_on_lose_focus = config.get("auto_hide_on_lose_focus", True)
+                self.open_folder_in_tab = config.get("open_folder_in_tab", True)
                 
                 raw_items = data.get("shortcuts", [])
                 self.items = [ShortcutItem.from_dict(item) for item in raw_items]
@@ -165,7 +167,8 @@ class ShortcutManager:
                 "config": {
                     "sort_by_frequency": self.sort_by_frequency,
                     "window_height_mode": self.window_height_mode,
-                    "auto_hide_on_lose_focus": self.auto_hide_on_lose_focus
+                    "auto_hide_on_lose_focus": self.auto_hide_on_lose_focus,
+                    "open_folder_in_tab": self.open_folder_in_tab
                 },
                 "shortcuts": [item.to_dict() for item in self.items]
             }
@@ -204,6 +207,13 @@ class ShortcutManager:
 
     def get_auto_hide_on_lose_focus(self) -> bool:
         return getattr(self, "auto_hide_on_lose_focus", True)
+
+    def set_open_folder_in_tab(self, enabled: bool):
+        self.open_folder_in_tab = enabled
+        self.save()
+
+    def get_open_folder_in_tab(self) -> bool:
+        return getattr(self, "open_folder_in_tab", True)
 
     def record_launch(self, item_id: str):
         item = self.get_by_id(item_id)

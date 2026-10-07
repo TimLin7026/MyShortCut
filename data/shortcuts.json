@@ -1,9 +1,10 @@
 {
   "version": "1.2",
-  "updated_at": "2026-09-23 09:02:37",
+  "updated_at": "2026-10-07 09:12:57",
   "config": {
     "sort_by_frequency": true,
-    "window_height_mode": "half"
+    "window_height_mode": "half",
+    "auto_hide_on_lose_focus": true
   },
   "shortcuts": [
     {
@@ -16,8 +17,21 @@
       "enabled": true,
       "pinned": true,
       "order": 0,
-      "launch_count": 1,
-      "last_launched_at": "2026-09-21 09:22:21"
+      "launch_count": 8,
+      "last_launched_at": "2026-10-07 09:12:43"
+    },
+    {
+      "id": "e3bf2525",
+      "name": "工具開發區",
+      "target_path": "D:\\工具開發區",
+      "arguments": "",
+      "working_dir": "D:\\工具開發區",
+      "category": "資料夾",
+      "enabled": true,
+      "pinned": true,
+      "order": 14,
+      "launch_count": 6,
+      "last_launched_at": "2026-10-06 11:09:45"
     },
     {
       "id": "1094f4c2",
@@ -42,8 +56,8 @@
       "enabled": true,
       "pinned": false,
       "order": 2,
-      "launch_count": 7,
-      "last_launched_at": "2026-09-23 09:00:31"
+      "launch_count": 19,
+      "last_launched_at": "2026-10-07 09:12:56"
     },
     {
       "id": "042ca10d",
@@ -55,8 +69,8 @@
       "enabled": true,
       "pinned": false,
       "order": 3,
-      "launch_count": 5,
-      "last_launched_at": "2026-09-23 09:02:37"
+      "launch_count": 13,
+      "last_launched_at": "2026-10-07 09:12:57"
     },
     {
       "id": "9402355e",
@@ -68,8 +82,8 @@
       "enabled": true,
       "pinned": false,
       "order": 4,
-      "launch_count": 4,
-      "last_launched_at": "2026-09-22 18:17:03"
+      "launch_count": 7,
+      "last_launched_at": "2026-10-01 09:32:24"
     },
     {
       "id": "76bb7b8b",
@@ -81,8 +95,8 @@
       "enabled": true,
       "pinned": false,
       "order": 5,
-      "launch_count": 3,
-      "last_launched_at": "2026-09-21 10:03:37"
+      "launch_count": 7,
+      "last_launched_at": "2026-10-02 09:08:47"
     },
     {
       "id": "3c14bbda",
@@ -94,34 +108,21 @@
       "enabled": true,
       "pinned": false,
       "order": 6,
-      "launch_count": 2,
-      "last_launched_at": "2026-09-18 09:21:55"
-    },
-    {
-      "id": "d0db413f",
-      "name": "實測區 台股戰情室",
-      "target_path": "D:\\工具實測區\\實測區 台股戰情室",
-      "arguments": "",
-      "working_dir": "D:\\工具實測區\\實測區 台股戰情室",
-      "category": "資料夾",
-      "enabled": true,
-      "pinned": false,
-      "order": 7,
-      "launch_count": 2,
-      "last_launched_at": "2026-09-21 09:59:21"
+      "launch_count": 4,
+      "last_launched_at": "2026-10-05 09:09:09"
     },
     {
       "id": "ac654a0e",
       "name": "SyncFlow",
-      "target_path": "D:\\工具開發區\\資料夾同步\\SyncFlow.exe",
+      "target_path": "D:\\Tools\\SyncFlow 資料夾同步\\SyncFlow.exe",
       "arguments": "",
-      "working_dir": "D:\\工具開發區\\資料夾同步",
+      "working_dir": "D:\\Tools\\SyncFlow 資料夾同步",
       "category": "程式",
       "enabled": true,
       "pinned": false,
-      "order": 8,
-      "launch_count": 0,
-      "last_launched_at": ""
+      "order": 7,
+      "launch_count": 4,
+      "last_launched_at": "2026-09-29 11:25:13"
     },
     {
       "id": "dbf6be84",
@@ -132,9 +133,35 @@
       "category": "程式",
       "enabled": true,
       "pinned": false,
-      "order": 9,
-      "launch_count": 0,
-      "last_launched_at": ""
+      "order": 8,
+      "launch_count": 3,
+      "last_launched_at": "2026-09-30 10:21:00"
+    },
+    {
+      "id": "af18ce6e",
+      "name": "實測區 台股戰情室",
+      "target_path": "D:\\工具實測區\\實測區 台股戰情室",
+      "arguments": "",
+      "working_dir": "D:\\工具實測區\\實測區 台股戰情室",
+      "category": "資料夾",
+      "enabled": true,
+      "pinned": false,
+      "order": 15,
+      "launch_count": 3,
+      "last_launched_at": "2026-10-06 09:01:49"
+    },
+    {
+      "id": "40cf9c42",
+      "name": "WORD",
+      "target_path": "C:\\Program Files (x86)\\Kingsoft\\WPS Office\\11.8.2.11665\\office6\\wps.exe",
+      "arguments": "",
+      "working_dir": "C:\\Program Files (x86)\\Kingsoft\\WPS Office\\11.8.2.11665\\office6",
+      "category": "程式",
+      "enabled": true,
+      "pinned": false,
+      "order": 11,
+      "launch_count": 1,
+      "last_launched_at": "2026-10-02 11:55:25"
     },
     {
       "id": "eae7d56a",
@@ -145,7 +172,7 @@
       "category": "程式",
       "enabled": true,
       "pinned": false,
-      "order": 10,
+      "order": 9,
       "launch_count": 0,
       "last_launched_at": ""
     },
@@ -158,20 +185,7 @@
       "category": "程式",
       "enabled": true,
       "pinned": false,
-      "order": 11,
-      "launch_count": 0,
-      "last_launched_at": ""
-    },
-    {
-      "id": "40cf9c42",
-      "name": "WORD",
-      "target_path": "C:\\Program Files (x86)\\Kingsoft\\WPS Office\\11.8.2.11665\\office6\\wps.exe",
-      "arguments": "",
-      "working_dir": "C:\\Program Files (x86)\\Kingsoft\\WPS Office\\11.8.2.11665\\office6",
-      "category": "程式",
-      "enabled": true,
-      "pinned": false,
-      "order": 12,
+      "order": 10,
       "launch_count": 0,
       "last_launched_at": ""
     },
@@ -184,7 +198,7 @@
       "category": "資料夾",
       "enabled": true,
       "pinned": false,
-      "order": 13,
+      "order": 12,
       "launch_count": 0,
       "last_launched_at": ""
     },
@@ -197,7 +211,7 @@
       "category": "文件",
       "enabled": true,
       "pinned": false,
-      "order": 14,
+      "order": 13,
       "launch_count": 0,
       "last_launched_at": ""
     }

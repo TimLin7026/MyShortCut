@@ -29,3 +29,4 @@ env/
 
 # Large binary executables (建議透過 GitHub Releases 發布)
 *.exe
+*.old*

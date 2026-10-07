@@ -32,8 +32,8 @@ class SettingsDialog(tk.Toplevel):
 
         self.title("偏好設定")
         self.win_w = 480
-        self.win_h = 460
-        self.minsize(440, 420)
+        self.win_h = 500
+        self.minsize(440, 460)
         self.configure(bg=BG_COLOR)
         self.transient(parent)
         self.grab_set()
@@ -129,6 +129,28 @@ class SettingsDialog(tk.Toplevel):
         card = tk.LabelFrame(container, text=" 功能開關 ", font=FONT_BOLD, bg=CARD_BG, fg=TEXT_COLOR, padx=15, pady=10)
         card.pack(fill=tk.X, pady=(0, 10))
 
+        # 資料夾分頁開啟開關
+        self.var_folder_tab = tk.BooleanVar(value=self.manager.get_open_folder_in_tab())
+        chk_folder_tab = tk.Checkbutton(
+            card,
+            text="📁 資料夾於現有檔案總管開新分頁 (若已開啟視窗則自動分頁)",
+            variable=self.var_folder_tab,
+            font=FONT_NORMAL,
+            bg=CARD_BG,
+            fg=TEXT_COLOR,
+            activebackground=CARD_BG,
+            activeforeground=TEXT_COLOR,
+            selectcolor="#FFFFFF",
+            wraplength=410,
+            justify="left",
+            anchor="w",
+            bd=0,
+            highlightthickness=0,
+            cursor="hand2",
+            command=self._on_toggle_folder_tab
+        )
+        chk_folder_tab.pack(fill=tk.X, anchor="w", pady=(0, 8))
+
         # 失去焦點自動隱藏開關
         self.var_auto_hide = tk.BooleanVar(value=self.manager.get_auto_hide_on_lose_focus())
         chk_auto_hide = tk.Checkbutton(
@@ -204,6 +226,12 @@ class SettingsDialog(tk.Toplevel):
     def _on_change_height_mode(self):
         new_mode = self.var_height_mode.get()
         self.manager.set_window_height_mode(new_mode)
+        if self.on_settings_changed:
+            self.on_settings_changed()
+
+    def _on_toggle_folder_tab(self):
+        new_val = self.var_folder_tab.get()
+        self.manager.set_open_folder_in_tab(new_val)
         if self.on_settings_changed:
             self.on_settings_changed()
 

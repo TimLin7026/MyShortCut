@@ -13,7 +13,7 @@ from tkinter import ttk, messagebox, filedialog
 from typing import Optional, Callable, Dict, List
 
 from core.shortcut_manager import ShortcutManager, ShortcutItem, guess_category
-from core.launcher import launch_shortcut
+from core.launcher import launch_shortcut, open_folder
 from core.icon_extractor import IconExtractor
 from ui.edit_dialog import ShortcutEditDialog
 from ui.settings_dialog import SettingsDialog
@@ -374,7 +374,7 @@ class MainWindow(tk.Tk):
         target_path = item.target_path
         folder = target_path if os.path.isdir(target_path) else os.path.dirname(target_path)
         if os.path.exists(folder):
-            os.startfile(folder)
+            open_folder(folder, prefer_tab=self.manager.get_open_folder_in_tab())
         else:
             messagebox.showwarning("提示", f"目標路徑所屬目錄不存在：\n{folder}", parent=self)
 
@@ -510,11 +510,13 @@ class MainWindow(tk.Tk):
         if not selected_ids:
             return
 
+        prefer_tab = self.manager.get_open_folder_in_tab()
+
         # 單一項目直接啟動
         if len(selected_ids) == 1:
             item = self.manager.get_by_id(selected_ids[0])
             if item:
-                ok, msg = launch_shortcut(item)
+                ok, msg = launch_shortcut(item, prefer_tab=prefer_tab)
                 if ok:
                     self.manager.record_launch(item.id)
                     self.refresh_list()
@@ -532,7 +534,7 @@ class MainWindow(tk.Tk):
                     self.after(0, lambda idx=i+1, n=item.name: self.lbl_status.config(
                         text=f"🚀 正在依序啟動 ({idx}/{total}): {n}..."
                     ))
-                    ok, _ = launch_shortcut(item)
+                    ok, _ = launch_shortcut(item, prefer_tab=prefer_tab)
                     if ok:
                         success_count += 1
                         self.manager.record_launch(item.id)
